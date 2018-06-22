@@ -37,17 +37,17 @@ matrix:
         CCACHE=/usr/bin/ccache
         RUSTFLAGS=-Dwarnings
         CARGO_INCREMENTAL=0
-        LLVM_CONFIG=/usr/bin/llvm-config-6.0
+        LLVM_CONFIG=/usr/lib/llvm-3.9/bin/llvm-config
       addons:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - llvm-toolchain-trusty-6.0
+            - llvm-toolchain-precise-3.9
           packages:
             - autoconf2.13
-            - clang-6.0
-            - llvm-6.0
-            - llvm-6.0-runtime
+            - clang-3.9
+            - llvm-3.9
+            - llvm-3.9-runtime
             - cmake
             - g++-6
             - gperf
