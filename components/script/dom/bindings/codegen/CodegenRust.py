@@ -4966,7 +4966,9 @@ class CGProxyUnwrap(CGAbstractMethod):
     obj = js::UnwrapObject(obj);
 }*/
 //MOZ_ASSERT(IsProxy(obj));
-        let box_ = GetProxyReservedSlot(obj.get(), 0).to_private() as *const %s;
+        let ref mut slot = UndefinedValue();
+        GetProxyReservedSlot(obj.get(), 0, slot);
+        let box_ = slot.to_private() as *const %s;
 return box_;""" % self.descriptor.concreteType)
 
 

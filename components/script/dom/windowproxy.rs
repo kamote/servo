@@ -654,7 +654,9 @@ static XORIGIN_PROXY_HANDLER: ProxyTraps = ProxyTraps {
 
 #[allow(unsafe_code)]
 unsafe extern fn finalize(_fop: *mut JSFreeOp, obj: *mut JSObject) {
-    let this = GetProxyReservedSlot(obj, 0).to_private() as *mut WindowProxy;
+    let ref mut slot = UndefinedValue();
+    GetProxyReservedSlot(obj, 0, slot);
+    let this = slot.to_private() as *mut WindowProxy;
     if this.is_null() {
         // GC during obj creation or after transplanting.
         return;
@@ -666,7 +668,9 @@ unsafe extern fn finalize(_fop: *mut JSFreeOp, obj: *mut JSObject) {
 
 #[allow(unsafe_code)]
 unsafe extern fn trace(trc: *mut JSTracer, obj: *mut JSObject) {
-    let this = GetProxyReservedSlot(obj, 0).to_private() as *const WindowProxy;
+    let ref mut slot = UndefinedValue();
+    GetProxyReservedSlot(obj, 0, slot);
+    let this = slot.to_private() as *const WindowProxy;
     if this.is_null() {
         // GC during obj creation or after transplanting.
         return;

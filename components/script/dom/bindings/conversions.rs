@@ -48,9 +48,10 @@ use js::error::throw_type_error;
 use js::glue::{IsWrapper, UnwrapObject};
 use js::glue::{RUST_JSID_IS_INT, RUST_JSID_TO_INT};
 use js::glue::{RUST_JSID_IS_STRING, RUST_JSID_TO_STRING};
+use js::glue::JS_GetReservedSlot;
 use js::glue::GetProxyReservedSlot;
 use js::jsapi::{Heap, JSContext, JSObject, JSString};
-use js::jsapi::{JS_GetLatin1StringCharsAndLength, JS_GetReservedSlot};
+use js::jsapi::{JS_GetLatin1StringCharsAndLength};
 use js::jsapi::{JS_GetTwoByteStringCharsAndLength, JS_IsExceptionPending};
 use js::jsapi::{JS_NewStringCopyN, JS_StringHasLatin1Chars};
 use js::jsval::{ObjectValue, StringValue, UndefinedValue};
@@ -348,11 +349,12 @@ pub const DOM_OBJECT_SLOT: u32 = 0;
 
 /// Get the private pointer of a DOM object from a given reflector.
 pub unsafe fn private_from_object(obj: *mut JSObject) -> *const libc::c_void {
-    let value = if is_dom_object(obj) {
-        JS_GetReservedSlot(obj, DOM_OBJECT_SLOT)
+    let mut value = UndefinedValue();
+    if is_dom_object(obj) {
+        JS_GetReservedSlot(obj, DOM_OBJECT_SLOT, &mut value);
     } else {
         debug_assert!(is_dom_proxy(obj));
-        GetProxyReservedSlot(obj, 0)
+        GetProxyReservedSlot(obj, 0, &mut value);
     };
     if value.is_undefined() {
         ptr::null()
