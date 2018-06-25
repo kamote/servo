@@ -313,7 +313,9 @@ unsafe fn GetSubframeWindowProxy(
 ) -> Option<(DomRoot<WindowProxy>, u32)> {
     let index = get_array_index_from_id(cx, Handle::from_raw(id));
     if let Some(index) = index {
-        rooted!(in(cx) let target = GetProxyPrivate(*proxy).to_object());
+        let ref mut slot = UndefinedValue();
+	GetProxyPrivate(*proxy, slot);
+        rooted!(in(cx) let target = slot.to_object());
         if let Ok(win) = root_from_handleobject::<Window>(target.handle()) {
             let browsing_context_id = win.window_proxy().browsing_context_id();
             let (result_sender, result_receiver) = ipc::channel().unwrap();
@@ -363,7 +365,9 @@ unsafe extern "C" fn getOwnPropertyDescriptor(cx: *mut JSContext,
         return true;
     }
 
-    rooted!(in(cx) let target = GetProxyPrivate(proxy.get()).to_object());
+    let ref mut slot = UndefinedValue();
+    GetProxyPrivate(proxy.get(), slot);
+    rooted!(in(cx) let target = slot.to_object());
     if !JS_GetOwnPropertyDescriptorById(cx, target.handle().into(), id, desc) {
         return false;
     }
@@ -393,7 +397,9 @@ unsafe extern "C" fn defineProperty(cx: *mut JSContext,
         return true;
     }
 
-    rooted!(in(cx) let target = GetProxyPrivate(*proxy.ptr).to_object());
+    let ref mut slot = UndefinedValue();
+    GetProxyPrivate(*proxy.ptr, slot);
+    rooted!(in(cx) let target = slot.to_object());
     JS_DefinePropertyById(cx, target.handle().into(), id, desc, res)
 }
 
@@ -409,7 +415,9 @@ unsafe extern "C" fn has(cx: *mut JSContext,
         return true;
     }
 
-    rooted!(in(cx) let target = GetProxyPrivate(*proxy.ptr).to_object());
+    let ref mut slot = UndefinedValue();
+    GetProxyPrivate(*proxy.ptr, slot);
+    rooted!(in(cx) let target = slot.to_object());
     let mut found = false;
     if !JS_HasPropertyById(cx, target.handle().into(), id, &mut found) {
         return false;
@@ -432,7 +440,9 @@ unsafe extern "C" fn get(cx: *mut JSContext,
         return true;
     }
 
-    rooted!(in(cx) let target = GetProxyPrivate(*proxy.ptr).to_object());
+    let ref mut slot = UndefinedValue();
+    GetProxyPrivate(*proxy.ptr, slot);
+    rooted!(in(cx) let target = slot.to_object());
     JS_ForwardGetPropertyTo(cx, target.handle().into(), id, receiver, vp)
 }
 
@@ -450,7 +460,9 @@ unsafe extern "C" fn set(cx: *mut JSContext,
         return true;
     }
 
-    rooted!(in(cx) let target = GetProxyPrivate(*proxy.ptr).to_object());
+    let ref mut slot = UndefinedValue();
+    GetProxyPrivate(*proxy.ptr, slot);
+    rooted!(in(cx) let target = slot.to_object());
     JS_ForwardSetPropertyTo(cx,
                             target.handle().into(),
                             id,
@@ -540,7 +552,9 @@ unsafe extern "C" fn has_xorigin(cx: *mut JSContext,
                                  bp: *mut bool)
                                  -> bool
 {
-    rooted!(in(cx) let target = GetProxyPrivate(*proxy.ptr).to_object());
+    let ref mut slot = UndefinedValue();
+    GetProxyPrivate(*proxy.ptr, slot);
+    rooted!(in(cx) let target = slot.to_object());
     let mut found = false;
     JS_HasOwnPropertyById(cx, target.handle().into(), id, &mut found);
     if found {

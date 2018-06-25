@@ -24,6 +24,7 @@ use js::jsapi::MutableHandle as RawMutableHandle;
 use js::jsapi::MutableHandleObject as RawMutableHandleObject;
 use js::jsapi::ObjectOpResult;
 use js::jsval::ObjectValue;
+use js::jsval::UndefinedValue;
 use js::rust::{Handle, HandleObject, MutableHandle, MutableHandleObject};
 use js::rust::wrappers::JS_AlreadyHasOwnPropertyById;
 use js::rust::wrappers::JS_NewObjectWithGivenProto;
@@ -157,7 +158,8 @@ pub unsafe extern "C" fn get_prototype_if_ordinary(_: *mut JSContext,
 /// Get the expando object, or null if there is none.
 pub unsafe fn get_expando_object(obj: RawHandleObject, mut expando: MutableHandleObject) {
     assert!(is_dom_proxy(obj.get()));
-    let val = GetProxyPrivate(obj.get());
+    let ref mut val = UndefinedValue();
+    GetProxyPrivate(obj.get(), val);
     expando.set(if val.is_undefined() {
         ptr::null_mut()
     } else {
