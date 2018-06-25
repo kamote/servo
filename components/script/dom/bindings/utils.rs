@@ -16,14 +16,14 @@ use dom::windowproxy;
 use js;
 use js::JS_CALLEE;
 use js::glue::{CallJitGetterOp, CallJitMethodOp, CallJitSetterOp, IsWrapper};
-use js::glue::{GetCrossCompartmentWrapper, WrapperNew};
+use js::glue::{GetCrossCompartmentWrapper, JS_GetReservedSlot, WrapperNew};
 use js::glue::{RUST_FUNCTION_VALUE_TO_JITINFO, RUST_JSID_IS_INT, RUST_JSID_IS_STRING};
 use js::glue::{RUST_JSID_TO_INT, RUST_JSID_TO_STRING, UnwrapObject};
 use js::jsapi::{CallArgs, DOMCallbacks, GetGlobalForObjectCrossCompartment};
 use js::jsapi::{Heap, JSAutoCompartment, JSContext};
 use js::jsapi::{JSJitInfo, JSObject, JSTracer, JSWrapObjectCallbacks};
 use js::jsapi::{JS_EnumerateStandardClasses, JS_GetLatin1StringCharsAndLength};
-use js::jsapi::{JS_GetReservedSlot, JS_IsExceptionPending, JS_IsGlobalObject};
+use js::jsapi::{JS_IsExceptionPending, JS_IsGlobalObject};
 use js::jsapi::{JS_ResolveStandardClass, JS_StringHasLatin1Chars, ObjectOpResult};
 use js::jsapi::HandleId as RawHandleId;
 use js::jsapi::HandleObject as RawHandleObject;
@@ -124,7 +124,9 @@ unsafe impl Sync for DOMJSClass {}
 pub fn get_proto_or_iface_array(global: *mut JSObject) -> *mut ProtoOrIfaceArray {
     unsafe {
         assert_ne!(((*get_object_class(global)).flags & JSCLASS_DOM_GLOBAL), 0);
-        JS_GetReservedSlot(global, DOM_PROTOTYPE_SLOT).to_private() as *mut ProtoOrIfaceArray
+	let ref mut slot = UndefinedValue();
+        JS_GetReservedSlot(global, DOM_PROTOTYPE_SLOT, slot);
+	slot.to_private() as *mut ProtoOrIfaceArray
     }
 }
 

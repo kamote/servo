@@ -2657,9 +2657,10 @@ ensure_expando_object(cx, obj.handle().into(), expando.handle_mut());
     else:
         copyFunc = "JS_InitializePropertiesFromCompatibleNativeObject"
     copyCode += """\
+let ref mut slot = UndefinedValue();
+JS_GetReservedSlot(proto.get(), DOM_PROTO_UNFORGEABLE_HOLDER_SLOT, slot);
 rooted!(in(cx) let mut unforgeable_holder = ptr::null_mut::<JSObject>());
-unforgeable_holder.handle_mut().set(
-    JS_GetReservedSlot(proto.get(), DOM_PROTO_UNFORGEABLE_HOLDER_SLOT).to_object());
+unforgeable_holder.handle_mut().set(slot.to_object());
 assert!(%(copyFunc)s(cx, %(obj)s.handle(), unforgeable_holder.handle()));
 """ % {'copyFunc': copyFunc, 'obj': obj}
 
@@ -5434,7 +5435,9 @@ finalize_global(obj);
 """
     elif descriptor.weakReferenceable:
         release += """\
-let weak_box_ptr = JS_GetReservedSlot(obj, DOM_WEAK_SLOT).to_private() as *mut WeakBox<%s>;
+let ref mut slot = UndefinedValue();
+JS_GetReservedSlot(obj, DOM_WEAK_SLOT, slot);
+let weak_box_ptr = slot.to_private() as *mut WeakBox<%s>;
 if !weak_box_ptr.is_null() {
     let count = {
         let weak_box = &*weak_box_ptr;
@@ -5791,7 +5794,7 @@ def generate_imports(config, cgthings, descriptors, callbacks=None, dictionaries
         'js::rust::wrappers::JS_GetProperty',
         'js::jsapi::JS_GetPropertyById',
         'js::jsapi::JS_GetPropertyDescriptorById',
-        'js::jsapi::JS_GetReservedSlot',
+        'js::glue::JS_GetReservedSlot',
         'js::jsapi::JS_HasProperty',
         'js::jsapi::JS_HasPropertyById',
         'js::rust::wrappers::JS_InitializePropertiesFromCompatibleNativeObject',
