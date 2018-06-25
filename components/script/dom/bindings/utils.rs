@@ -124,9 +124,9 @@ unsafe impl Sync for DOMJSClass {}
 pub fn get_proto_or_iface_array(global: *mut JSObject) -> *mut ProtoOrIfaceArray {
     unsafe {
         assert_ne!(((*get_object_class(global)).flags & JSCLASS_DOM_GLOBAL), 0);
-	let ref mut slot = UndefinedValue();
+        let ref mut slot = UndefinedValue();
         JS_GetReservedSlot(global, DOM_PROTOTYPE_SLOT, slot);
-	slot.to_private() as *mut ProtoOrIfaceArray
+        slot.to_private() as *mut ProtoOrIfaceArray
     }
 }
 
