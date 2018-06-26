@@ -314,7 +314,7 @@ unsafe fn GetSubframeWindowProxy(
     let index = get_array_index_from_id(cx, Handle::from_raw(id));
     if let Some(index) = index {
         let ref mut slot = UndefinedValue();
-	GetProxyPrivate(*proxy, slot);
+        GetProxyPrivate(*proxy, slot);
         rooted!(in(cx) let target = slot.to_object());
         if let Ok(win) = root_from_handleobject::<Window>(target.handle()) {
             let browsing_context_id = win.window_proxy().browsing_context_id();
