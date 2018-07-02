@@ -326,8 +326,8 @@ class MachCommands(CommandBase):
                 host_suffix = "x86_64"
             host = os_type + "-" + host_suffix
 
-            host_clang = _get_exec_path(["clang"])
-            host_clangpp = _get_exec_path(["clang++"])
+            host_clang = env.get('HOST_CLANG', _get_exec_path(["clang"]))
+            host_clangpp = env.get('HOST_CLANGXX', _get_exec_path(["clang++"]))
 
             env['PATH'] = path.join(
                 env['ANDROID_NDK'], "toolchains", android_toolchain, "prebuilt", host, "bin"
