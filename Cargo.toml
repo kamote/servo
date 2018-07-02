@@ -16,8 +16,11 @@ opt-level = 3
 # lto = false
 
 [patch.crates-io]
-#mozjs_sys = { git = "https://github.com/asajeffrey/mozjs.git", branch = "smup" }
-#mozjs = { git = "https://github.com/asajeffrey/rust-mozjs.git", branch = "smup" }
+mozjs_sys = { git = "https://github.com/asajeffrey/mozjs.git", branch = "smup" }
+mozjs = { git = "https://github.com/asajeffrey/rust-mozjs.git", branch = "smup" }
+cc = { git = "https://github.com/jdm/cc-rs.git", branch = "patch-1" }
+harfbuzz-sys = { git = "https://github.com/servo/rust-harfbuzz.git", branch = "android-clang" }
+servo-fontconfig-sys = { git = "https://github.com/servo/libfontconfig.git", branch = "android-clang" }
 # If you need to temporarily test Servo with a local fork of some upstream
 # crate, add that here. Use the form:
 #
@@ -27,9 +30,3 @@ opt-level = 3
 #
 #     [patch."https://github.com/servo/<repository>"]
 #     <crate> = { path = "/path/to/local/checkout" }
-cc = { path = "../cc-rs" }
-harfbuzz-sys = { path = "../rust-harfbuzz/harfbuzz-sys" }
-servo-fontconfig-sys = { path = "../libfontconfig" }
-servo-skia = { path = "../skia" }
-mozjs_sys = { path = "../mozjs" }
-mozjs = { path = "../rust-mozjs" }
