@@ -637,7 +637,7 @@ class CommandBase(object):
 
     def handle_android_target(self, target):
         if target == "arm-linux-androideabi":
-            self.config["android"]["platform"] = "android-18"
+            self.config["android"]["platform"] = "android-21"
             self.config["android"]["target"] = target
             self.config["android"]["arch"] = "arm"
             self.config["android"]["lib"] = "armeabi"
@@ -645,7 +645,7 @@ class CommandBase(object):
             self.config["android"]["toolchain_prefix"] = target
             return True
         elif target == "armv7-linux-androideabi":
-            self.config["android"]["platform"] = "android-18"
+            self.config["android"]["platform"] = "android-21"
             self.config["android"]["target"] = target
             self.config["android"]["arch"] = "arm"
             self.config["android"]["lib"] = "armeabi-v7a"
@@ -661,7 +661,7 @@ class CommandBase(object):
             self.config["android"]["toolchain_prefix"] = target
             return True
         elif target == "i686-linux-android":
-            self.config["android"]["platform"] = "android-18"
+            self.config["android"]["platform"] = "android-21"
             self.config["android"]["target"] = target
             self.config["android"]["arch"] = "x86"
             self.config["android"]["lib"] = "x86"
