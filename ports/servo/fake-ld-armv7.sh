@@ -12,4 +12,4 @@ source ./ports/servo/fake-ld.sh
 
 export _GCC_PARAMS="${@}"
 call_gcc "arch-arm" "arm-linux-androideabi" "android-21" "armeabi-v7a" \
-         "armv7-linux-androideabi"
+         "arm-linux-androideabi"

@@ -15,12 +15,11 @@ call_gcc()
   export _ANDROID_ARCH=$1
   export _ANDROID_EABI=$2
   export _ANDROID_PLATFORM=$3
-  export _ANDROID_TARGET=$5
   export ANDROID_SYSROOT="${ANDROID_NDK}/platforms/${_ANDROID_PLATFORM}/${_ANDROID_ARCH}"
   ANDROID_TOOLCHAIN=""
   for host in "linux-x86_64" "linux-x86" "darwin-x86_64" "darwin-x86"; do
-    if [[ -d "${ANDROID_NDK}/toolchains/llvm/prebuilt/${host}/bin" ]]; then
-      ANDROID_TOOLCHAIN="${ANDROID_NDK}/toolchains/llvm/prebuilt/${host}/bin"
+    if [[ -d "${ANDROID_NDK}/toolchains/${_ANDROID_EABI}-4.9/prebuilt/${host}/bin" ]]; then
+      ANDROID_TOOLCHAIN="${ANDROID_NDK}/toolchains/${_ANDROID_EABI}-4.9/prebuilt/${host}/bin"
       break
     fi
   done
@@ -31,9 +30,9 @@ call_gcc()
   echo "toolchain: ${ANDROID_TOOLCHAIN}"
   echo "libs dir: ${ANDROID_CXX_LIBS}"
   echo "sysroot: ${ANDROID_SYSROOT}"
-  echo "targetdir: ${TARGET_DIR}"
+  echo "targetdir: ${ANDROID_CXX_LIBS}"
 
-  "${ANDROID_TOOLCHAIN}/clang" \
-    --sysroot="${ANDROID_SYSROOT}" --gcc-toolchain="${GCC_TOOLCHAIN}" -L "${ANDROID_CXX_LIBS}" ${_GCC_PARAMS} -lc++ \
-    -v -o "${TARGET_DIR}/libservo.so" --target="${_ANDROID_TARGET}" -shared -Wl,-undefined -Wl,dynamic_lookup && touch "${TARGET_DIR}/servo"
+  "${ANDROID_TOOLCHAIN}/$5-gcc" \
+    --sysroot="${ANDROID_SYSROOT}" -L "${ANDROID_CXX_LIBS}" ${_GCC_PARAMS} -lc++ \
+    -o "${TARGET_DIR}/libservo.so" -shared && touch "${TARGET_DIR}/servo"
 }
