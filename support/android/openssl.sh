@@ -30,7 +30,7 @@ _ANDROID_NDK="android-ndk-r9"
 
 case $RUST_TARGET in
     armv7*)
-      _ANDROID_TARGET="arm-linux-androideabi"
+      _ANDROID_TARGET="armv7a-linux-androideabi"
       _ANDROID_ARCH=arch-arm
       _OPENSSL_MACHINE="armv7"
       _OPENSSL_ARCH="arm"
@@ -55,14 +55,14 @@ case $RUST_TARGET in
       _ANDROID_ARCH=arch-x86
       _OPENSSL_MACHINE="x86"
       _OPENSSL_ARCH="arm"
-      _OPENSSL_CONFIG="android-x86"
+      _OPENSSL_CONFIG="linux-generic32"
       ;;
     *)
       echo "Error: Invalid TARGET platform: $RUST_TARGET"
       ;;
 esac
 
-_ANDROID_EABI="$ANDROID_TOOLCHAIN_NAME"
+_ANDROID_EABI="$ANDROID_TOOLCHAIN_NAME-4.9"
 
 
 # Set _ANDROID_API to the API you want to use. You should set it
@@ -87,22 +87,22 @@ echo $ANDROID_NDK_ROOT
 # http://groups.google.com/group/android-ndk/browse_thread/thread/a998e139aca71d77
 if [ -z "$ANDROID_NDK_ROOT" ] || [ ! -d "$ANDROID_NDK_ROOT" ]; then
   echo "Error: ANDROID_NDK_ROOT is not a valid path. Please edit this script."
-  # echo "$ANDROID_NDK_ROOT"
-  # exit 1
+  echo "$ANDROID_NDK_ROOT"
+  exit 1
 fi
 
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT/toolchains" ]; then
   echo "Error: ANDROID_NDK_ROOT/toolchains is not a valid path. Please edit this script."
-  # echo "$ANDROID_NDK_ROOT/toolchains"
-  # exit 1
+  echo "$ANDROID_NDK_ROOT/toolchains"
+  exit 1
 fi
 
 # Error checking
 if [ ! -d "$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI" ]; then
   echo "Error: ANDROID_EABI is not a valid path. Please edit this script."
-  # echo "$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI"
-  # exit 1
+  echo "$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI"
+  exit 1
 fi
 
 #####################################################################
@@ -114,10 +114,12 @@ fi
 # https://android.googlesource.com/platform/ndk/+/ics-mr0/docs/STANDALONE-TOOLCHAIN.html
 
 ANDROID_TOOLCHAIN=""
+ANDROID_LIBGCCDIR=""
 for host in "linux-x86_64" "linux-x86" "darwin-x86_64" "darwin-x86"
 do
-  if [ -d "$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/bin" ]; then
-    ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/bin"
+  if [ -d "$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/$ANDROID_TOOLCHAIN_NAME" ]; then
+    ANDROID_TOOLCHAIN="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/$ANDROID_TOOLCHAIN_NAME/bin"
+    ANDROID_LIBGCCDIR="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_EABI/prebuilt/$host/lib/gcc/$ANDROID_TOOLCHAIN_NAME/4.9.x"
     break
   fi
 done
@@ -125,20 +127,26 @@ done
 # Error checking
 if [ -z "$ANDROID_TOOLCHAIN" ] || [ ! -d "$ANDROID_TOOLCHAIN" ]; then
   echo "Error: ANDROID_TOOLCHAIN is not valid. Please edit this script."
-  # echo "$ANDROID_TOOLCHAIN"
-  # exit 1
+  echo "$ANDROID_TOOLCHAIN"
+  exit 1
 fi
 
-#ANDROID_TOOLS="$_ANDROID_TARGET-gcc $_ANDROID_TARGET-ranlib $_ANDROID_TARGET-ld"
-ANDROID_TOOLS="clang"
+# Error checking
+if [ -z "$ANDROID_LIBGCCDIR" ] || [ ! -d "$ANDROID_LIBGCCDIR" ] || [ ! -f "$ANDROID_LIBGCCDIR/libgcc.a" ]; then
+  echo "Error: ANDROID_LIBGCCDIR is not valid. Please edit this script."
+  echo "$ANDROID_LIBGCCDIR"
+  exit 1
+fi
+
+ANDROID_TOOLS="ranlib ld"
 
 for tool in $ANDROID_TOOLS
 do
   # Error checking
   if [ ! -e "$ANDROID_TOOLCHAIN/$tool" ]; then
     echo "Error: Failed to find $tool. Please edit this script."
-    # echo "$ANDROID_TOOLCHAIN/$tool"
-    # exit 1
+    echo "$ANDROID_TOOLCHAIN/$tool"
+    exit 1
   fi
 done
 
@@ -146,6 +154,44 @@ done
 if [ ! -z "$ANDROID_TOOLCHAIN" ]; then
   export ANDROID_TOOLCHAIN="$ANDROID_TOOLCHAIN"
   export PATH="$ANDROID_TOOLCHAIN":"$PATH"
+fi
+
+#####################################################################
+
+# Try to find clang the same way
+
+ANDROID_LLVM=""
+for host in "linux-x86_64" "linux-x86" "darwin-x86_64" "darwin-x86"
+do
+  if [ -d "$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin" ]; then
+    ANDROID_LLVM="$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/$host/bin"
+    break
+  fi
+done
+
+# Error checking
+if [ -z "$ANDROID_LLVM" ] || [ ! -d "$ANDROID_LLVM" ]; then
+  echo "Error: ANDROID_LLVM is not valid. Please edit this script."
+  echo "$ANDROID_LLVM"
+  exit 1
+fi
+
+LLVM_TOOLS="clang clang++"
+
+for tool in $LLVM_TOOLS
+do
+  # Error checking
+  if [ ! -e "$ANDROID_LLVM/$tool" ]; then
+    echo "Error: Failed to find $tool. Please edit this script."
+    echo "$ANDROID_LLVM/$tool"
+    exit 1
+  fi
+done
+
+# Only modify/export PATH if ANDROID_LLVM good
+if [ ! -z "$ANDROID_LLVM" ]; then
+  export ANDROID_LLVM="$ANDROID_LLVM"
+  export PATH="$ANDROID_LLVM":"$PATH"
 fi
 
 #####################################################################
@@ -159,8 +205,8 @@ export NDK_SYSROOT="$ANDROID_SYSROOT"
 # Error checking
 if [ -z "$ANDROID_SYSROOT" ] || [ ! -d "$ANDROID_SYSROOT" ]; then
   echo "Error: ANDROID_SYSROOT is not valid. Please edit this script."
-  # echo "$ANDROID_SYSROOT"
-  # exit 1
+  echo "$ANDROID_SYSROOT"
+  exit 1
 fi
 
 #####################################################################
@@ -172,13 +218,12 @@ export MACHINE=$_OPENSSL_MACHINE
 export RELEASE=2.6.37
 export SYSTEM=android
 export ARCH=$_OPENSSL_ARCH
-#export CROSS_COMPILE="$_ANDROID_TARGET-"
 
 # For the Android toolchain
 # https://android.googlesource.com/platform/ndk/+/ics-mr0/docs/STANDALONE-TOOLCHAIN.html
 export ANDROID_SYSROOT="$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH"
 export SYSROOT="$ANDROID_SYSROOT"
-#export CROSS_SYSROOT="$ANDROID_SYSROOT"
+export CROSS_SYSROOT="$ANDROID_SYSROOT"
 export NDK_SYSROOT="$ANDROID_SYSROOT"
 export ANDROID_NDK_SYSROOT="$ANDROID_SYSROOT"
 export ANDROID_API="$_ANDROID_API"
@@ -186,16 +231,10 @@ export ANDROID_API="$_ANDROID_API"
 # CROSS_COMPILE and ANDROID_DEV are DFW (Don't Fiddle With). Its used by OpenSSL build system.
 # export CROSS_COMPILE="arm-linux-androideabi-"
 export ANDROID_DEV="$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr"
-export HOSTCC=gcc
 export CC=clang
-export RANLIB="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host/$_ANDROID_TARGET/bin/ranlib"
-export AR="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host/$_ANDROID_TARGET/bin/ar"
-export LD="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host/$_ANDROID_TARGET/bin"
 
 # See https://github.com/cocochpie/android-openssl/blob/master/build-all-arch.sh
-#+xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -B$ANDROID_DEV/lib -O3 -fomit-frame-pointer -Wall -D__ANDROID_API__=18 --target=armv7a-none-linux-androideabi --gcc-toolchain=$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host --sysroot=$ANDROID_SYSROOT -I$ANDROID_DEV/include -I$ANDROID_DEV/include/$_ANDROID_TARGET -L$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib -B$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib"
-
-xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -I$ANDROID_DEV/include -B$ANDROID_DEV/lib -O3 -fomit-frame-pointer -Wall --gcc-toolchain=$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host -Wno-error=macro-redefined -B$LD -L$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib -L$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host/lib/gcc/$_ANDROID_TARGET/4.9.x/ -B$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib --sysroot=$ANDROID_SYSROOT --target=armv7a-none-linux-androideabi -v"
+xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -I$ANDROID_DEV/include -B$ANDROID_DEV/lib -L$ANDROID_DEV/lib -L$ANDROID_LIBGCCDIR -O3 -fomit-frame-pointer -Wall -v --target=$_ANDROID_TARGET"
 
 VERBOSE=1
 if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
