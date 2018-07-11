@@ -16,10 +16,10 @@ opt-level = 3
 # lto = false
 
 [patch.crates-io]
+
 mozjs_sys = { git = "https://github.com/asajeffrey/mozjs.git", branch = "smup" }
 mozjs = { git = "https://github.com/asajeffrey/rust-mozjs.git", branch = "smup" }
 mozangle = { git = "https://github.com/asajeffrey/mozangle.git", branch = "smup" }
-cc = { git = "https://github.com/jdm/cc-rs.git", branch = "patch-1" }
 harfbuzz-sys = { git = "https://github.com/servo/rust-harfbuzz.git", branch = "android-clang" }
 servo-fontconfig-sys = { git = "https://github.com/servo/libfontconfig.git", branch = "android-clang" }
 servo-skia = { git = "https://github.com/asajeffrey/skia.git", branch = "clang-build" }
