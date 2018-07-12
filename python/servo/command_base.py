@@ -646,7 +646,7 @@ class CommandBase(object):
             return True
         elif target == "armv7-linux-androideabi":
             self.config["android"]["platform"] = "android-18"
-            self.config["android"]["target"] = target
+            self.config["android"]["target"] = "arm-linux-androideabi"
             self.config["android"]["arch"] = "arm"
             self.config["android"]["lib"] = "armeabi-v7a"
             self.config["android"]["toolchain_name"] = "llvm"
@@ -661,7 +661,8 @@ class CommandBase(object):
             self.config["android"]["toolchain_prefix"] = target
             return True
         elif target == "i686-linux-android":
-            self.config["android"]["platform"] = "android-18"
+            # https://github.com/jemalloc/jemalloc/issues/1279
+            self.config["android"]["platform"] = "android-21"
             self.config["android"]["target"] = target
             self.config["android"]["arch"] = "x86"
             self.config["android"]["lib"] = "x86"

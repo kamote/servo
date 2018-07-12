@@ -273,7 +273,9 @@ class MachCommands(CommandBase):
                 sys.exit(1)
 
             android_platform = self.config["android"]["platform"]
+            android_target = self.config["android"]["target"]
             android_toolchain = self.config["android"]["toolchain_name"]
+            android_gcc_toolchain = self.config["android"]["toolchain_prefix"] + "-4.9"
             android_arch = "arch-" + self.config["android"]["arch"]
 
             # Build OpenSSL for android
@@ -329,17 +331,17 @@ class MachCommands(CommandBase):
             host_clang = _get_exec_path(["clang"])
             host_clangpp = _get_exec_path(["clang++"])
 
-            env['PATH'] = path.join(
-                env['ANDROID_NDK'], "toolchains", android_toolchain, "prebuilt", host, "bin"
-            ) + ':' + env['PATH']
+            android_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain, "prebuilt", host)
+            gcc_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_gcc_toolchain, "prebuilt", host)
+            gcc_libs = path.join(gcc_toolchain, "lib", "gcc", android_target, "4.9.x")
+
+            env['PATH'] = path.join(android_toolchain, "bin") + ':' + path.join(gcc_toolchain, "bin") + ':' + env['PATH']
             env['ANDROID_SYSROOT'] = path.join(env['ANDROID_NDK'], "platforms", android_platform, android_arch)
             support_include = path.join(env['ANDROID_NDK'], "sources", "android", "support", "include")
-            cxx_include = path.join(
-                env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++", "libcxx", "include")
-            cxxabi_include = path.join(
-                env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++abi", "libcxxabi", "include")
-            sysroot_include = path.join(
-                env['ANDROID_SYSROOT'], "usr", "include")
+            cxx_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++", "libcxx", "include")
+            cxxabi_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++abi", "libcxxabi", "include")
+            sysroot_include = path.join(env['ANDROID_SYSROOT'], "usr", "include")
+            sysroot_libs = path.join(env['ANDROID_SYSROOT'], "usr", "lib")
             env['HOST_CC'] = host_clang
             env['HOST_CXX'] = host_clangpp
             env['HOST_CFLAGS'] = ''
@@ -347,28 +349,24 @@ class MachCommands(CommandBase):
             env['CC'] = 'clang'
             env['CPP'] = 'clang -E'
             env['CXX'] = 'clang++'
-            gcc_toolchain = path.join(
-                env['ANDROID_NDK'], "toolchains", self.config["android"]["toolchain_prefix"] + "-4.9",
-                "prebuilt", host
-            )
             env['ANDROID_TOOLCHAIN'] = gcc_toolchain
             env['GCC_TOOLCHAIN'] = gcc_toolchain
-            gcc_toolchain_bin = path.join(gcc_toolchain, self.config["android"]["toolchain_prefix"], "bin")
-            env['AR'] = path.join(gcc_toolchain_bin, "ar")
-            env['RANLIB'] = path.join(gcc_toolchain_bin, "ranlib")
-            env['OBJCOPY'] = path.join(gcc_toolchain_bin, "objcopy")
-            env['YASM'] = path.join(env['ANDROID_NDK'], 'prebuilt', host, 'bin', 'yasm')
             env['CFLAGS'] = ' '.join([
+                "--target=" + target,
                 "--sysroot=" + env['ANDROID_SYSROOT'],
                 "--gcc-toolchain=" + gcc_toolchain,
-                "-I" + support_include])
+                "-isystem", sysroot_include,
+                "-isystem", support_include,
+                "-L" + gcc_libs])
             env['CXXFLAGS'] = ' '.join([
+                "--target=" + target,
                 "--sysroot=" + env['ANDROID_SYSROOT'],
                 "--gcc-toolchain=" + gcc_toolchain,
-                "-I" + support_include,
+                "-isystem", sysroot_include,
+                "-isystem", support_include,
                 "-I" + cxx_include,
                 "-I" + cxxabi_include,
-                "-I" + sysroot_include,
+                "-L" + gcc_libs,
                 "-D__NDK_FPABI__="])
             env["NDK_ANDROID_VERSION"] = android_platform.replace("android-", "")
             env['CPPFLAGS'] = ' '.join(["--sysroot", env['ANDROID_SYSROOT']])
