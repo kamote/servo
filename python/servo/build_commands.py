@@ -300,7 +300,7 @@ class MachCommands(CommandBase):
                     sys.exit(1)
 
             env["RUST_TARGET"] = target
-            env["ANDROID_TOOLCHAIN_NAME"] = self.config["android"]["toolchain_prefix"]
+            env["ANDROID_TOOLCHAIN_NAME"] = android_toolchain
             with cd(openssl_dir):
                 status = call(
                     make_cmd + ["-f", "openssl.makefile"],
@@ -312,7 +312,6 @@ class MachCommands(CommandBase):
             env['OPENSSL_LIB_DIR'] = openssl_dir
             env['OPENSSL_INCLUDE_DIR'] = path.join(openssl_dir, "include")
             env['OPENSSL_STATIC'] = 'TRUE'
-
             # Android builds also require having the gcc bits on the PATH and various INCLUDE
             # path munging if you do not want to install a standalone NDK. See:
             # https://dxr.mozilla.org/mozilla-central/source/build/autoconf/android.m4#139-161
@@ -327,6 +326,9 @@ class MachCommands(CommandBase):
                 host_suffix = "x86_64"
             host = os_type + "-" + host_suffix
 
+            host_clang = _get_exec_path(["clang"])
+            host_clangpp = _get_exec_path(["clang++"])
+
             env['PATH'] = path.join(
                 env['ANDROID_NDK'], "toolchains", android_toolchain, "prebuilt", host, "bin"
             ) + ':' + env['PATH']
@@ -338,8 +340,8 @@ class MachCommands(CommandBase):
                 env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++abi", "libcxxabi", "include")
             sysroot_include = path.join(
                 env['ANDROID_SYSROOT'], "usr", "include")
-            env['HOST_CC'] = _get_exec_path(["clang"])
-            env['HOST_CXX'] = _get_exec_path(["clang++"])
+            env['HOST_CC'] = host_clang
+            env['HOST_CXX'] = host_clangpp
             env['HOST_CFLAGS'] = ''
             env['HOST_CXXFLAGS'] = ''
             env['CC'] = 'clang'
@@ -377,7 +379,7 @@ class MachCommands(CommandBase):
             if not os.path.exists(aar_out_dir):
                 os.makedirs(aar_out_dir)
             env["AAR_OUT_DIR"] = aar_out_dir
-            
+
         status = self.call_rustup_run(["cargo", "build"] + opts, env=env, verbose=verbose)
         elapsed = time() - build_start
 
