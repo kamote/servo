@@ -234,7 +234,7 @@ export ANDROID_DEV="$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr
 export CC=clang
 
 # See https://github.com/cocochpie/android-openssl/blob/master/build-all-arch.sh
-xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -I$ANDROID_DEV/include -B$ANDROID_DEV/lib -L$ANDROID_DEV/lib -L$ANDROID_LIBGCCDIR -O3 -fomit-frame-pointer -Wall -v --target=$_ANDROID_TARGET"
+xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -I$ANDROID_DEV/include -B$ANDROID_DEV/lib -L$ANDROID_DEV/lib -L$ANDROID_LIBGCCDIR -O3 -fomit-frame-pointer -Wall -Wno-unknown-attributes --target=$_ANDROID_TARGET"
 
 VERBOSE=1
 if [ ! -z "$VERBOSE" ] && [ "$VERBOSE" != "0" ]; then
