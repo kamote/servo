@@ -214,7 +214,7 @@ xCFLAGS="-DSHARED_EXTENSION=.so -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H \
   -Wall -Wno-error=macro-redefined \
   -O3 \
   -I$ANDROID_DEV/include \
-  -B$ANDROID_DEV/lib -B$LD -B$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib \
+  -B$ANDROID_DEV/lib -B$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib \
   -L$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib -L$ANDROID_NDK_ROOT/toolchains/$_ANDROID_GCC-4.9/prebuilt/$host/lib/gcc/$_ANDROID_TARGET/4.9.x/ \
   --gcc-toolchain=$ANDROID_GCC_TOOLCHAIN \
   --sysroot=$ANDROID_SYSROOT \
