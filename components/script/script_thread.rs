@@ -73,7 +73,7 @@ use ipc_channel::ipc::{self, IpcSender};
 use ipc_channel::router::ROUTER;
 use js::glue::GetWindowProxyClass;
 use js::jsapi::{JSAutoCompartment, JSContext, JS_SetWrapObjectCallbacks};
-use js::jsapi::{JSTracer, RunJobs, SetWindowProxyClass};
+use js::jsapi::{JSTracer, SetWindowProxyClass};
 use js::jsval::UndefinedValue;
 use metrics::{MAX_TASK_NS, PaintTimeMetrics};
 use microtask::{MicrotaskQueue, Microtask};
@@ -2648,7 +2648,6 @@ impl ScriptThread {
     }
 
     fn perform_a_microtask_checkpoint(&self) {
-        unsafe { RunJobs(self.get_cx()); }
         self.microtask_queue.checkpoint(|id| self.documents.borrow().find_global(id))
     }
 }
