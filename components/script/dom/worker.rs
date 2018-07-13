@@ -21,7 +21,7 @@ use dom::messageevent::MessageEvent;
 use dom::workerglobalscope::prepare_workerscope_init;
 use dom_struct::dom_struct;
 use ipc_channel::ipc;
-use js::jsapi::{JSAutoCompartment, JSContext};
+use js::jsapi::{JSAutoCompartment, JSContext, JS_RequestInterruptCallback};
 use js::jsval::UndefinedValue;
 use js::rust::HandleValue;
 use script_traits::WorkerScriptLoadOrigin;
@@ -152,6 +152,7 @@ impl WorkerMethods for Worker {
         Ok(())
     }
 
+    #[allow(unsafe_code)]
     // https://html.spec.whatwg.org/multipage/#terminate-a-worker
     fn Terminate(&self) {
         // Step 1
@@ -161,6 +162,10 @@ impl WorkerMethods for Worker {
 
         // Step 2
         self.terminated.set(true);
+
+        // Step 3
+	let cx = self.global().get_cx();
+	unsafe { JS_RequestInterruptCallback(cx) };
     }
 
     // https://html.spec.whatwg.org/multipage/#handler-worker-onmessage
