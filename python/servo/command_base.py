@@ -646,7 +646,7 @@ class CommandBase(object):
             return True
         elif target == "armv7-linux-androideabi":
             self.config["android"]["platform"] = "android-18"
-            self.config["android"]["target"] = "arm-linux-androideabi"
+            self.config["android"]["target"] = target
             self.config["android"]["arch"] = "arm"
             self.config["android"]["lib"] = "armeabi-v7a"
             self.config["android"]["toolchain_name"] = "llvm"

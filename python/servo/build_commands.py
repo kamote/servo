@@ -274,9 +274,10 @@ class MachCommands(CommandBase):
 
             android_platform = self.config["android"]["platform"]
             android_target = self.config["android"]["target"]
-            android_toolchain = self.config["android"]["toolchain_name"]
-            android_gcc_toolchain = self.config["android"]["toolchain_prefix"] + "-4.9"
-            android_arch = "arch-" + self.config["android"]["arch"]
+            android_toolchain_name = self.config["android"]["toolchain_name"]
+            android_toolchain_prefix = self.config["android"]["toolchain_prefix"]
+            android_lib = self.config["android"]["lib"]
+            android_arch = self.config["android"]["arch"]
 
             # Build OpenSSL for android
             env["OPENSSL_VERSION"] = "1.0.2k"
@@ -302,7 +303,7 @@ class MachCommands(CommandBase):
                     sys.exit(1)
 
             env["RUST_TARGET"] = target
-            env["ANDROID_TOOLCHAIN_NAME"] = android_toolchain
+            env["ANDROID_TOOLCHAIN_NAME"] = android_toolchain_name
             with cd(openssl_dir):
                 status = call(
                     make_cmd + ["-f", "openssl.makefile"],
@@ -331,12 +332,12 @@ class MachCommands(CommandBase):
             host_clang = _get_exec_path(["clang"])
             host_clangpp = _get_exec_path(["clang++"])
 
-            android_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain, "prebuilt", host)
-            gcc_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_gcc_toolchain, "prebuilt", host)
+            android_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain_name, "prebuilt", host)
+            gcc_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain_prefix +"-4.9", "prebuilt", host)
             gcc_libs = path.join(gcc_toolchain, "lib", "gcc", android_target, "4.9.x")
 
             env['PATH'] = path.join(android_toolchain, "bin") + ':' + path.join(gcc_toolchain, "bin") + ':' + env['PATH']
-            env['ANDROID_SYSROOT'] = path.join(env['ANDROID_NDK'], "platforms", android_platform, android_arch)
+            env['ANDROID_SYSROOT'] = path.join(env['ANDROID_NDK'], "platforms", android_platform, "arch-" + android_arch)
             support_include = path.join(env['ANDROID_NDK'], "sources", "android", "support", "include")
             cxx_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++", "libcxx", "include")
             cxxabi_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++abi", "libcxxabi", "include")
@@ -351,26 +352,29 @@ class MachCommands(CommandBase):
             env['CXX'] = 'clang++'
             env['ANDROID_TOOLCHAIN'] = gcc_toolchain
             env['GCC_TOOLCHAIN'] = gcc_toolchain
+            gcc_toolchain_bin = path.join(gcc_toolchain, android_toolchain_prefix, "bin")
+            env['AR'] = path.join(gcc_toolchain_bin, "ar")
+            env['RANLIB'] = path.join(gcc_toolchain_bin, "ranlib")
+            env['OBJCOPY'] = path.join(gcc_toolchain_bin, "objcopy")
+            env['YASM'] = path.join(env['ANDROID_NDK'], 'prebuilt', host, 'bin', 'yasm')
             env['CFLAGS'] = ' '.join([
-                "--target=" + target,
                 "--sysroot=" + env['ANDROID_SYSROOT'],
                 "--gcc-toolchain=" + gcc_toolchain,
-                "-isystem", sysroot_include,
-                "-isystem", support_include,
+                "-I" + support_include,
+                "-I" + sysroot_include,
                 "-L" + gcc_libs])
             env['CXXFLAGS'] = ' '.join([
-                "--target=" + target,
                 "--sysroot=" + env['ANDROID_SYSROOT'],
                 "--gcc-toolchain=" + gcc_toolchain,
-                "-isystem", sysroot_include,
-                "-isystem", support_include,
+                "-I" + support_include,
                 "-I" + cxx_include,
                 "-I" + cxxabi_include,
+                "-I" + sysroot_include,
                 "-L" + gcc_libs,
                 "-D__NDK_FPABI__="])
             env["NDK_ANDROID_VERSION"] = android_platform.replace("android-", "")
             env['CPPFLAGS'] = ' '.join(["--sysroot", env['ANDROID_SYSROOT']])
-            env["CMAKE_ANDROID_ARCH_ABI"] = self.config["android"]["lib"]
+            env["CMAKE_ANDROID_ARCH_ABI"] = android_lib
             env["CMAKE_TOOLCHAIN_FILE"] = path.join(self.android_support_dir(), "toolchain.cmake")
             # Set output dir for gradle aar files
             aar_out_dir = self.android_aar_dir()
