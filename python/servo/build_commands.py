@@ -329,8 +329,8 @@ class MachCommands(CommandBase):
                 host_suffix = "x86_64"
             host = os_type + "-" + host_suffix
 
-            host_clang = _get_exec_path(["clang"])
-            host_clangpp = _get_exec_path(["clang++"])
+            host_cc = _get_exec_path(["clang"]) or _get_exec_path(["gcc"])
+            host_cxx = _get_exec_path(["clang++"]) or _get_exec_path(["g++"])
 
             android_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain_name, "prebuilt", host)
             gcc_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain_prefix +"-4.9", "prebuilt", host)
@@ -343,8 +343,8 @@ class MachCommands(CommandBase):
             cxxabi_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++abi", "libcxxabi", "include")
             sysroot_include = path.join(env['ANDROID_SYSROOT'], "usr", "include")
             sysroot_libs = path.join(env['ANDROID_SYSROOT'], "usr", "lib")
-            env['HOST_CC'] = host_clang
-            env['HOST_CXX'] = host_clangpp
+            env['HOST_CC'] = host_cc
+            env['HOST_CXX'] = host_cxx
             env['HOST_CFLAGS'] = ''
             env['HOST_CXXFLAGS'] = ''
             env['CC'] = 'clang'
