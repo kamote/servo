@@ -382,7 +382,7 @@ class MachCommands(CommandBase):
                 os.makedirs(aar_out_dir)
             env["AAR_OUT_DIR"] = aar_out_dir
 
-        if verbose:
+        if very_verbose:
             print (["Calling", "cargo", "build"] + opts)
             for key in env:
                 print((key, env[key]))
