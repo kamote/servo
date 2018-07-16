@@ -382,6 +382,11 @@ class MachCommands(CommandBase):
                 os.makedirs(aar_out_dir)
             env["AAR_OUT_DIR"] = aar_out_dir
 
+        if verbose:
+            print (["Calling", "cargo", "build"] + opts)
+            for key in env:
+                print((key, env[key]))
+
         status = self.call_rustup_run(["cargo", "build"] + opts, env=env, verbose=verbose)
         elapsed = time() - build_start
 
