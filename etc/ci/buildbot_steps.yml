@@ -155,7 +155,7 @@ linux-nightly:
 android:
   - ./mach clean-nightlies --keep 3 --force
   - ./mach clean-cargo-cache --keep 3 --force
-  - env ANDROID_SDK=/home/servo/android/sdk/r25.2.3 ./mach build --android --dev
+  - env ANDROID_SDK=/home/servo/android/sdk/r25.2.3 ./mach build --android -vv --dev
   - env ANDROID_SDK=/home/servo/android/sdk/r25.2.3 ./mach package --android --dev
   - bash ./etc/ci/lockfile_changed.sh
   - python ./etc/ci/check_dynamic_symbols.py
