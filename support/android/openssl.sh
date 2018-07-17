@@ -205,9 +205,9 @@ export ANDROID_API="$_ANDROID_API"
 export ANDROID_DEV="$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr"
 export HOSTCC=gcc
 export CC=clang
-export RANLIB="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host/$_ANDROID_TARGET/bin/ranlib"
-export AR="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host/$_ANDROID_TARGET/bin/ar"
-export LD="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host/$_ANDROID_TARGET/bin"
+export RANLIB="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_GCC-4.9/prebuilt/$host/$_ANDROID_TARGET/bin/ranlib"
+export AR="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_GCC-4.9/prebuilt/$host/$_ANDROID_TARGET/bin/ar"
+export LD="$ANDROID_NDK_ROOT/toolchains/$_ANDROID_GCC-4.9/prebuilt/$host/$_ANDROID_TARGET/bin"
 
 # See https://github.com/cocochpie/android-openssl/blob/master/build-all-arch.sh
 #+xCFLAGS="-DSHARED_EXTENSION=.so -fPIC -DOPENSSL_PIC -DDSO_DLFCN -DHAVE_DLFCN_H -B$ANDROID_DEV/lib -O3 -fomit-frame-pointer -Wall -D__ANDROID_API__=18 --target=armv7a-none-linux-androideabi --gcc-toolchain=$ANDROID_NDK_ROOT/toolchains/$_ANDROID_TARGET-4.9/prebuilt/$host --sysroot=$ANDROID_SYSROOT -I$ANDROID_DEV/include -I$ANDROID_DEV/include/$_ANDROID_TARGET -L$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib -B$ANDROID_NDK_ROOT/platforms/$_ANDROID_API/$_ANDROID_ARCH/usr/lib"
