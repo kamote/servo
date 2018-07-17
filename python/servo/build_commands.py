@@ -332,17 +332,22 @@ class MachCommands(CommandBase):
             host_cc = _get_exec_path(["clang"]) or _get_exec_path(["gcc"])
             host_cxx = _get_exec_path(["clang++"]) or _get_exec_path(["g++"])
 
-            android_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain_name, "prebuilt", host)
-            gcc_toolchain = path.join(env['ANDROID_NDK'], "toolchains", android_toolchain_prefix +"-4.9", "prebuilt", host)
+            android_toolchain = path.join(env['ANDROID_NDK'], "toolchains",
+                                          android_toolchain_name, "prebuilt", host)
+            gcc_toolchain = path.join(env['ANDROID_NDK'], "toolchains",
+                                      android_toolchain_prefix + "-4.9", "prebuilt", host)
             gcc_libs = path.join(gcc_toolchain, "lib", "gcc", android_target, "4.9.x")
 
-            env['PATH'] = path.join(android_toolchain, "bin") + ':' + path.join(gcc_toolchain, "bin") + ':' + env['PATH']
-            env['ANDROID_SYSROOT'] = path.join(env['ANDROID_NDK'], "platforms", android_platform, "arch-" + android_arch)
+            env['PATH'] = (path.join(android_toolchain, "bin") + ':'
+                           + path.join(gcc_toolchain, "bin") + ':' + env['PATH'])
+            env['ANDROID_SYSROOT'] = path.join(env['ANDROID_NDK'], "platforms",
+                                               android_platform, "arch-" + android_arch)
             support_include = path.join(env['ANDROID_NDK'], "sources", "android", "support", "include")
-            cxx_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++", "libcxx", "include")
-            cxxabi_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl", "llvm-libc++abi", "libcxxabi", "include")
+            cxx_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl",
+                                    "llvm-libc++", "libcxx", "include")
+            cxxabi_include = path.join(env['ANDROID_NDK'], "sources", "cxx-stl",
+                                       "llvm-libc++abi", "libcxxabi", "include")
             sysroot_include = path.join(env['ANDROID_SYSROOT'], "usr", "include")
-            sysroot_libs = path.join(env['ANDROID_SYSROOT'], "usr", "lib")
             env['HOST_CC'] = host_cc
             env['HOST_CXX'] = host_cxx
             env['HOST_CFLAGS'] = ''

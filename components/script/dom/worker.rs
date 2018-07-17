@@ -164,8 +164,8 @@ impl WorkerMethods for Worker {
         self.terminated.set(true);
 
         // Step 3
-	let cx = self.global().get_cx();
-	unsafe { JS_RequestInterruptCallback(cx) };
+        let cx = self.global().get_cx();
+        unsafe { JS_RequestInterruptCallback(cx) };
     }
 
     // https://html.spec.whatwg.org/multipage/#handler-worker-onmessage
